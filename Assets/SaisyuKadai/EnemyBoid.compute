@@ -27,13 +27,15 @@ float3 _AvoidTargetPosition;
 float _AvoidDistance;
 float _AvoidWeight;
 
-float rand(float2 co)
+float smoothRand(float2 uv)
 {
-    return frac(sin(dot(co.xy, float2(12.9898, 78.233))) * 43758.5453);
+    float r1 = frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453);
+    float r2 = frac(sin(dot(uv + 1.2345, float2(93.9898, 67.345))) * 24634.6345);
+    return lerp(r1, r2, 0.5);
 }
 
 // 敵用のカーネル
-[numthreads(128,1,1)]
+[numthreads(64,1,1)]
 void UpdateEnemyBoid(uint3 id : SV_DispatchThreadID)
 {
     if (id.x >= _BoidCountGroup) return;
@@ -41,14 +43,17 @@ void UpdateEnemyBoid(uint3 id : SV_DispatchThreadID)
     BoidDataGPU self = _BoidsBufferWrite[id.x];
     BoidSettingsGPU settings = _SettingsBuffer[self.typeId];
 
-    // シンプルにランダムな力を加える
-    float3 randomForce = float3(
-        rand(float2(Time * 0.1, self.position.x * 0.1)) * 2.0 - 1.0,
-        rand(float2(Time * 0.1, self.position.y * 0.1 + 123.4)) * 2.0 - 1.0,
-        rand(float2(Time * 0.1, self.position.z * 0.1 + 567.8)) * 2.0 - 1.0
-    );
+
+    float timeSeed = floor(Time / 4.0);
     
-    float3 steer = normalize(randomForce) * settings.maxForce * 0.5;
+    float rX = smoothRand(float2(timeSeed, id.x)) * 2.0 - 1.0;
+    float rY = smoothRand(float2(timeSeed, id.x + 123.4)) * 2.0 - 1.0;
+    float rZ = smoothRand(float2(timeSeed, id.x - 567.8)) * 2.0 - 1.0;
+    
+    float3 desiredWander = normalize(float3(rX, rY, rZ)) * settings.maxSpeed;
+    float3 steer = (desiredWander - self.velocity) * settings.maxForce * 0.5;
+
+    // float3 steer = normalize(randomDir) * settings.maxForce * 0.5;
 
     // 回避
     float distToTarget = distance(self.position, _AvoidTargetPosition);
