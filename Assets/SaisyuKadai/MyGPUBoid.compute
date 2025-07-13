@@ -16,78 +16,84 @@ struct BoidSettingsGPU
     float maxForce;
 };
 
-RWStructuredBuffer<BoidDataGPU> _BoidBuffer;
+StructuredBuffer<BoidDataGPU> _BoidsBufferRead;
+RWStructuredBuffer<BoidDataGPU> _BoidsBufferWrite;
 StructuredBuffer<BoidSettingsGPU> _SettingsBuffer;
-int _BoidCount;
+int _BoidCountAll;
+int _BoidCountGroup;
+float Time;
 
-[numthreads(100,1,1)]
+[numthreads(128,1,1)]
 void UpdateMyBoid (uint3 id : SV_DispatchThreadID)
 {
-  BoidDataGPU self = _BoidBuffer[id.x];
-  BoidSettingsGPU settings = _SettingsBuffer[self.typeId];
+    if (id.x >= _BoidCountGroup) return;
 
-  float3 separation = float3(0, 0, 0);
-  float3 alignment = float3(0, 0, 0);
-  float3 cohesion = float3(0, 0, 0);
-  int countSep = 0, countAli = 0, countCoh = 0;
+    BoidDataGPU self = _BoidsBufferWrite[id.x];
+    BoidSettingsGPU settings = _SettingsBuffer[self.typeId];
 
-  for (int i = 0; i < _BoidCount; i++)
-  {
-      if (i == id.x) continue;
+    float3 separation = float3(0, 0, 0);
+    float3 alignment = float3(0, 0, 0);
+    float3 cohesion = float3(0, 0, 0);
+    int countSep = 0, countAli = 0, countCoh = 0;
 
-      BoidDataGPU other = _BoidBuffer[i];
-      float dist = distance(self.position, other.position);
+    for (int i = 0; i < _BoidCountAll; i++)
+    {
+        BoidDataGPU other = _BoidsBufferRead[i];
+        if (all(self.position == other.position)) continue;
+        if (self.typeId != other.typeId) continue;
 
-      // 同じ種類のさかななら影響を受け合う
-      if (self.typeId == other.typeId)
-      {
-          if (dist > 0 && dist < 5.0f)
-          {
-              float3 diff = normalize(self.position - other.position) / dist;
-              separation += diff;
-              countSep++;
-          }
-          if (dist > 3.0f && dist < 10.0f)
-          {
-              alignment += other.velocity;
-              cohesion += other.position;
-              countAli++;
-              countCoh++;
-          }
-      }
-  }
+        float dist = distance(self.position, other.position);
 
-  float3 steer = float3(0, 0, 0);
-//   float maxSpeed = 5.0f;
-//   float maxForce = 0.05f;
+        if (dist > 0 && dist < 5.0f)
+        {
+            float3 diff = normalize(self.position - other.position) / dist;
+            separation += diff;
+            countSep++;
+        }
+        if (dist > 3.0f && dist < 10.0f)
+        {
+            alignment += other.velocity;
+            cohesion += other.position;
+            countAli++;
+            countCoh++;
+        }
+    }
 
-  if (countSep > 0)
-  {
-      float rand = 1.0f;
-      if(rand < 0.2f) rand = 30.0f;
-      float3 desired = normalize(separation / countSep) * settings.maxSpeed;
-      steer += (desired - self.velocity) * settings.separationOmomi * rand;
-  }
+    float3 steer = float3(0, 0, 0);
 
-  if (countAli > 0)
-  {
-      float3 desired = normalize(alignment / countAli) * settings.maxSpeed;
-      steer += (desired - self.velocity) * settings.alignmentOmomi;
-  }
+    if (countSep > 0)
+    {
+        float rand = 1.0f;
+        if(rand < 0.2f) rand = 30.0f;
+        float3 desired = normalize(separation / countSep) * settings.maxSpeed;
+        steer += (desired - self.velocity) * settings.separationOmomi * rand;
+    }
 
-  if (countCoh > 0)
-  {
-      float3 center = cohesion / countCoh;
-      float3 desired = normalize(center - self.position) * settings.maxSpeed;
-      steer += (desired - self.velocity) * settings.cohesionOmomi;
-  }
+    if (countAli > 0)
+    {
+        float3 desired = normalize(alignment / countAli) * settings.maxSpeed;
+        steer += (desired - self.velocity) * settings.alignmentOmomi;
+    }
 
-  // 操舵力を速度に足す
-  BoidDataGPU result = self;
-  if (length(steer) > settings.maxForce)
-  {
-      steer = normalize(steer) * settings.maxForce;
-  }
-  result.velocity += steer;
-  _BoidBuffer[id.x] = result;
+    if (countCoh > 0)
+    {
+        float3 center = cohesion / countCoh;
+        float3 desired = normalize(center - self.position) * settings.maxSpeed;
+        steer += (desired - self.velocity) * settings.cohesionOmomi;
+    }
+
+    if (length(steer) > settings.maxForce)
+    {
+        steer = normalize(steer) * settings.maxForce;
+    }
+
+    BoidDataGPU result = self;
+    result.velocity += steer;
+
+    if (length(result.velocity) > settings.maxSpeed)
+    {
+        result.velocity = normalize(result.velocity) * settings.maxSpeed;
+    }
+
+    _BoidsBufferWrite[id.x] = result;
 }

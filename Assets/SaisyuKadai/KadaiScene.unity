@@ -422,7 +422,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boidSettingsList:
-  - boidPrefab: {fileID: 9058049839713180050, guid: 6b1a974823d3adf4082a7467fc314600, type: 3}
+  - type: 0
+    computeShader: {fileID: 7200000, guid: c7d167f91138e9e43b901313c76dfdc9, type: 3}
+    boidPrefab: {fileID: 9058049839713180050, guid: 6b1a974823d3adf4082a7467fc314600, type: 3}
     boidMaterial: {fileID: 2100000, guid: ef9e488c24b28d741a975638d16a142f, type: 2}
     boidCount: 4000
     alignmentOmomi: 1
@@ -430,7 +432,9 @@ MonoBehaviour:
     separationOmomi: 1
     maxSpeed: 6
     maxForce: 0.1
-  - boidPrefab: {fileID: 9058049839713180050, guid: 6b1a974823d3adf4082a7467fc314600, type: 3}
+  - type: 0
+    computeShader: {fileID: 7200000, guid: c7d167f91138e9e43b901313c76dfdc9, type: 3}
+    boidPrefab: {fileID: 9058049839713180050, guid: 6b1a974823d3adf4082a7467fc314600, type: 3}
     boidMaterial: {fileID: 2100000, guid: 81c870c4ece568f44b54ca1315d3b9f4, type: 2}
     boidCount: 2500
     alignmentOmomi: 1
@@ -438,7 +442,9 @@ MonoBehaviour:
     separationOmomi: 1.6
     maxSpeed: 5
     maxForce: 0.05
-  - boidPrefab: {fileID: 8800883174626621840, guid: 98c6acb2e47e1f44baff2f0609f14220, type: 3}
+  - type: 0
+    computeShader: {fileID: 7200000, guid: c7d167f91138e9e43b901313c76dfdc9, type: 3}
+    boidPrefab: {fileID: 8800883174626621840, guid: 98c6acb2e47e1f44baff2f0609f14220, type: 3}
     boidMaterial: {fileID: 2100000, guid: a3d36a3f65e5d90488a62348944f69b1, type: 2}
     boidCount: 2500
     alignmentOmomi: 1
@@ -446,8 +452,16 @@ MonoBehaviour:
     separationOmomi: 1
     maxSpeed: 5
     maxForce: 0.05
-  boids: []
-  computeShader: {fileID: 7200000, guid: c7d167f91138e9e43b901313c76dfdc9, type: 3}
+  - type: 1
+    computeShader: {fileID: 7200000, guid: 1d33d8289b2d8a143b242e7e5ba451a5, type: 3}
+    boidPrefab: {fileID: 5923127385160640934, guid: 4e9a2ca6df0c7d8408cd58cce44816f3, type: 3}
+    boidMaterial: {fileID: 2100000, guid: 59e14786b8547a74da4011a4fbf3bfeb, type: 2}
+    boidCount: 500
+    alignmentOmomi: 1
+    cohesionOmomi: 1
+    separationOmomi: 1
+    maxSpeed: 2
+    maxForce: 0.05
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0

@@ -4,10 +4,13 @@ using System.Runtime.InteropServices;
 
 public class MyGPUBoidManager : MonoBehaviour
 {
-    // Boidの種類設定
+    public enum BoidType { Fish, Jellyfish }
+
     [System.Serializable]
     public class BoidSettings
     {
+        public BoidType type;
+        public ComputeShader computeShader;
         public MyGPUBoid boidPrefab;
         public Material boidMaterial;
         public int boidCount;
@@ -18,7 +21,6 @@ public class MyGPUBoidManager : MonoBehaviour
         public float maxForce = 0.05f;
     }
 
-    // GPUに渡すBoid自体のデータ
     public struct BoidDataGPU
     {
         public Vector3 position;
@@ -26,7 +28,6 @@ public class MyGPUBoidManager : MonoBehaviour
         public int typeId;
     }
 
-    // GPUに渡す種類ごとの設定データ
     private struct BoidSettingsGPU
     {
         public float alignmentOmomi;
@@ -36,61 +37,73 @@ public class MyGPUBoidManager : MonoBehaviour
         public float maxForce;
     }
 
-    // 種類の設定一覧
     public List<BoidSettings> boidSettingsList = new List<BoidSettings>();
-    // 全てのBoid
-    public List<MyGPUBoid> boids = new List<MyGPUBoid>();
 
+    private List<MyGPUBoid> allBoids = new List<MyGPUBoid>();
     // GPU関連
-    public ComputeShader computeShader;
+    private ComputeBuffer allBoidsBuffer;
+    private BoidDataGPU[] allBoidsArray;
 
-    private int kernelIndex;
-    private BoidDataGPU[] boidArray;
-    private ComputeBuffer boidBuffer;
+    // GPUに送るための変数セット
+    private class BoidGroup
+    {
+        public List<MyGPUBoid> boids = new List<MyGPUBoid>();
+        public BoidDataGPU[] boidArray;
+        public ComputeBuffer boidBuffer;
+        public BoidSettings settings;
+        public int kernelIndex;
+    }
+    private List<BoidGroup> boidGroups = new List<BoidGroup>();
     private ComputeBuffer settingsBuffer;
 
     void Start()
     {
         int totalBoidCount = 0;
-        foreach (var settings in boidSettingsList)
+        foreach (var setting in boidSettingsList)
         {
-            totalBoidCount += settings.boidCount;
+            totalBoidCount += setting.boidCount;
         }
-        boidArray = new BoidDataGPU[totalBoidCount];
-        boids.Capacity = totalBoidCount;
+        allBoids.Capacity = totalBoidCount;
+        allBoidsArray = new BoidDataGPU[totalBoidCount];
 
-        int boidIndex = 0;
         for (int typeId = 0; typeId < boidSettingsList.Count; typeId++)
         {
             var settings = boidSettingsList[typeId];
+
+            var group = new BoidGroup
+            {
+                settings = settings,
+                boidArray = new BoidDataGPU[settings.boidCount],
+            };
+            group.boids.Capacity = settings.boidCount;
+
             for (int i = 0; i < settings.boidCount; i++)
             {
                 Vector3 position = Random.insideUnitSphere * 40;
                 MyGPUBoid boid = Instantiate(settings.boidPrefab, position, Random.rotation);
                 boid.typeId = typeId;
+                boid.BoidType = settings.type; // Boidの種類設定
                 // マテリアル置換
                 foreach (MeshRenderer mr in boid.GetComponentsInChildren<MeshRenderer>())
                 {
                     mr.material = settings.boidMaterial;
                 }
-                boids.Add(boid);
+                group.boids.Add(boid);
+                allBoids.Add(boid);
 
-                // GPU用
-                boidArray[boidIndex] = new BoidDataGPU()
-                {
-                    position = position,
-                    velocity = transform.forward * 2.0f,
-                    typeId = typeId
-                };
-                boidIndex++;
+                group.boidArray[i] = new BoidDataGPU { position = position, velocity = transform.forward * 2.0f, typeId = typeId };
             }
+
+            group.boidBuffer = new ComputeBuffer(settings.boidCount, Marshal.SizeOf(typeof(BoidDataGPU)));
+            string kernelName = settings.type == BoidType.Jellyfish ? "UpdateKurageBoid" : "UpdateMyBoid";
+            group.kernelIndex = settings.computeShader.FindKernel(kernelName);
+            boidGroups.Add(group);
         }
 
-        // GPUに渡す設定データ作成
-        boidBuffer = new ComputeBuffer(totalBoidCount, Marshal.SizeOf(typeof(BoidDataGPU)));
-        
+        allBoidsBuffer = new ComputeBuffer(totalBoidCount, Marshal.SizeOf(typeof(BoidDataGPU)));
+
         var settingsGPUArray = new BoidSettingsGPU[boidSettingsList.Count];
-        for(int i = 0; i < boidSettingsList.Count; i++)
+        for (int i = 0; i < boidSettingsList.Count; i++)
         {
             settingsGPUArray[i] = new BoidSettingsGPU
             {
@@ -107,35 +120,53 @@ public class MyGPUBoidManager : MonoBehaviour
 
     void Update()
     {
-        if (boids.Count == 0) return;
-
-        kernelIndex = computeShader.FindKernel("UpdateMyBoid");
-
-        for (int i = 0; i < boids.Count; i++)
+        for (int i = 0; i < allBoids.Count; i++)
         {
-            boidArray[i].position = boids[i].transform.position;
-            boidArray[i].velocity = boids[i].Velocity;
+            allBoidsArray[i].position = allBoids[i].transform.position;
+            allBoidsArray[i].velocity = allBoids[i].Velocity;
+            allBoidsArray[i].typeId = allBoids[i].typeId;
         }
-        boidBuffer.SetData(boidArray);
-
-        computeShader.SetBuffer(kernelIndex, "_BoidBuffer", boidBuffer);
-        computeShader.SetBuffer(kernelIndex, "_SettingsBuffer", settingsBuffer);
-        computeShader.SetInt("_BoidCount", boids.Count);
-
-        computeShader.Dispatch(kernelIndex, boids.Count / 100, 1, 1);
-
-        boidBuffer.GetData(boidArray);
-        for (int i = 0; i < boids.Count; i++)
+        if(allBoidsBuffer != null)
         {
-            boids[i].Acceleration = boidArray[i].velocity - boids[i].Velocity;
+            allBoidsBuffer.SetData(allBoidsArray);
         }
 
-        // boidBuffer.Release();
+        foreach (var group in boidGroups)
+        {
+            for (int i = 0; i < group.boids.Count; i++)
+            {
+                group.boidArray[i].position = group.boids[i].transform.position;
+                group.boidArray[i].velocity = group.boids[i].Velocity;
+                group.boidArray[i].typeId = group.boids[i].typeId;
+            }
+            group.boidBuffer.SetData(group.boidArray);
+
+            var shader = group.settings.computeShader;
+
+            shader.SetBuffer(group.kernelIndex, "_BoidsBufferRead", allBoidsBuffer);
+            shader.SetBuffer(group.kernelIndex, "_BoidsBufferWrite", group.boidBuffer);
+            shader.SetBuffer(group.kernelIndex, "_SettingsBuffer", settingsBuffer);
+            shader.SetInt("_BoidCountAll", allBoids.Count);
+            shader.SetInt("_BoidCountGroup", group.boids.Count);
+            shader.SetFloat("Time", Time.time);
+
+            shader.Dispatch(group.kernelIndex, (group.boids.Count + 63) / 64, 1, 1);
+
+            group.boidBuffer.GetData(group.boidArray);
+            for (int i = 0; i < group.boids.Count; i++)
+            {
+                group.boids[i].Acceleration = group.boidArray[i].velocity - group.boids[i].Velocity;
+            }
+        }
     }
 
     private void OnDestroy()
     {
-        boidBuffer.Dispose();
-        settingsBuffer.Dispose();
+        allBoidsBuffer?.Dispose();
+        settingsBuffer?.Dispose();
+        foreach (var group in boidGroups)
+        {
+            group.boidBuffer?.Dispose();
+        }
     }
 }

@@ -5,8 +5,10 @@ public class MyGPUBoid : MonoBehaviour
     public Vector3 Velocity; // 速度
     public Vector3 Acceleration; // boidの計算によって得られた操舵力
     public int typeId;
-    float borderLengthX = 100.0f; // シミュレーション領域の横の長さ
-    float borderLengthY = 200.0f; // 高さ
+    public MyGPUBoidManager.BoidType BoidType { get; set; } // Boidの種類
+
+    float borderLengthX = 80.0f; // シミュレーション領域の横の長さ
+    float borderLengthY = 160.0f; // 高さ
 
     float maxSpeed = 5;
 
@@ -22,7 +24,21 @@ public class MyGPUBoid : MonoBehaviour
         Velocity = Vector3.ClampMagnitude(Velocity, maxSpeed);
 
         transform.position += Velocity * Time.deltaTime * 2.0f;
-        transform.rotation = Quaternion.LookRotation(Velocity) * Quaternion.Euler(0, -90, 0);
+
+        if (BoidType == MyGPUBoidManager.BoidType.Jellyfish)
+        {
+            // くらげなら上向き
+            transform.rotation = Quaternion.identity * Quaternion.Euler(-90, 0, 0);
+        }
+        else
+        {
+            // 魚なら進行方向
+            transform.rotation = Quaternion.LookRotation(Velocity) * Quaternion.Euler(0, -90, 0);
+            // if (Velocity.sqrMagnitude > 0.001f)
+            // {
+            //     transform.rotation = Quaternion.LookRotation(Velocity) * Quaternion.Euler(0, -90, 0);
+            // }
+        }
 
         border(); // 境界処理
     }
