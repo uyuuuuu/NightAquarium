@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 public class MyGPUBoidManager : MonoBehaviour
 {
-    public enum BoidType { Fish, Jellyfish }
+    public enum BoidType { Fish, Jellyfish, Enemy }
 
     [System.Serializable]
     public class BoidSettings
@@ -91,7 +91,19 @@ public class MyGPUBoidManager : MonoBehaviour
             }
 
             group.boidBuffer = new ComputeBuffer(settings.boidCount, Marshal.SizeOf(typeof(BoidDataGPU)));
-            string kernelName = settings.type == BoidType.Jellyfish ? "UpdateKurageBoid" : "UpdateMyBoid";
+            string kernelName;
+            if (settings.type == BoidType.Jellyfish)
+            {
+                kernelName = "UpdateKurageBoid";
+            }
+            else if (settings.type == BoidType.Enemy)
+            {
+                kernelName = "UpdateEnemyBoid";
+            }
+            else
+            {
+                kernelName = "UpdateMyBoid";
+            }
             group.kernelIndex = settings.computeShader.FindKernel(kernelName);
             boidGroups.Add(group);
         }

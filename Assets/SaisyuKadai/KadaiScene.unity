@@ -425,13 +425,13 @@ MonoBehaviour:
   - type: 0
     computeShader: {fileID: 7200000, guid: c7d167f91138e9e43b901313c76dfdc9, type: 3}
     boidPrefab: {fileID: -2075112354781557037, guid: 15ded5c74d6ecf54795e297a6c666194, type: 3}
-    boidMaterial: {fileID: 2100000, guid: ef9e488c24b28d741a975638d16a142f, type: 2}
+    boidMaterial: {fileID: 2100000, guid: d54f5022f457a594da8ecc86e242ae06, type: 2}
     boidCount: 6000
     alignmentOmomi: 0.8
     cohesionOmomi: 1.2
-    separationOmomi: 1.1
+    separationOmomi: 1.2
     maxSpeed: 6
-    maxForce: 0.1
+    maxForce: 0.05
   - type: 0
     computeShader: {fileID: 7200000, guid: c7d167f91138e9e43b901313c76dfdc9, type: 3}
     boidPrefab: {fileID: 1333493023339013355, guid: 027c50fc7a74c1e4a83f345e17c1820f, type: 3}
@@ -457,6 +457,16 @@ MonoBehaviour:
     boidPrefab: {fileID: -7148612090725155195, guid: 70ca1b7695068e445a2417b0a4de46d3, type: 3}
     boidMaterial: {fileID: 2100000, guid: 59e14786b8547a74da4011a4fbf3bfeb, type: 2}
     boidCount: 500
+    alignmentOmomi: 1
+    cohesionOmomi: 1
+    separationOmomi: 1
+    maxSpeed: 2
+    maxForce: 0.05
+  - type: 2
+    computeShader: {fileID: 7200000, guid: 774c2cf624f6d9846a2ab29fbd30cbd2, type: 3}
+    boidPrefab: {fileID: 2380797260616354382, guid: 6306217a64eed0148a83fa13ff5c3b16, type: 3}
+    boidMaterial: {fileID: 2100000, guid: ef9e488c24b28d741a975638d16a142f, type: 2}
+    boidCount: 10
     alignmentOmomi: 1
     cohesionOmomi: 1
     separationOmomi: 1

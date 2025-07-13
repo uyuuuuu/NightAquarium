@@ -40,6 +40,18 @@ void UpdateMyBoid (uint3 id : SV_DispatchThreadID)
     {
         BoidDataGPU other = _BoidsBufferRead[i];
         if (all(self.position == other.position)) continue;
+
+        // 敵が近くにいたら避ける
+        if (other.typeId == 4) {
+            float dist = distance(self.position, other.position);
+            if (dist < 10.0f) { // 敵を避ける距離
+                float3 diff = normalize(self.position - other.position) / dist;
+                separation += diff * 10.0; // 強く避ける
+                countSep++;
+            }
+            continue;
+        }
+        
         if (self.typeId != other.typeId) continue;
 
         float dist = distance(self.position, other.position);
