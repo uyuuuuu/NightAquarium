@@ -17,8 +17,9 @@ Shader "MY/SH_NeonTetra"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            // make fog work
-            #pragma multi_compile_fog
+            // インスタンシング用のpragma
+            #pragma multi_compile_instancing
+
 
             #include "UnityCG.cginc"
 
@@ -26,12 +27,13 @@ Shader "MY/SH_NeonTetra"
             {
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
+                // インスタンスIDを頂点情報として受け取る
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             struct v2f
             {
                 float2 uv : TEXCOORD0;
-                UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
                 float4 localPos : TEXCOORD1;
             };
@@ -45,10 +47,11 @@ Shader "MY/SH_NeonTetra"
             v2f vert (appdata v)
             {
                 v2f o;
+                // インスタンスIDを元に位置やスケールを反映
+                UNITY_SETUP_INSTANCE_ID(v);
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.localPos = v.vertex;
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
             }
 
@@ -69,8 +72,6 @@ Shader "MY/SH_NeonTetra"
                 fixed4 emissiveColor = lerp(_DownColor, _UpColor, upFactor);
                 // ベースカラーに発光色を加算
                 col.rgb += emissiveColor.rgb;
-                // apply fog
-                UNITY_APPLY_FOG(i.fogCoord, col);
                 return col;
             }
             ENDCG

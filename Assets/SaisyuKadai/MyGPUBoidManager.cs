@@ -83,11 +83,7 @@ public class MyGPUBoidManager : MonoBehaviour
                 MyGPUBoid boid = Instantiate(settings.boidPrefab, position, Random.rotation);
                 boid.typeId = typeId;
                 boid.BoidType = settings.type; // Boidの種類設定
-                // マテリアル置換
-                foreach (MeshRenderer mr in boid.GetComponentsInChildren<MeshRenderer>())
-                {
-                    mr.material = settings.boidMaterial;
-                }
+
                 group.boids.Add(boid);
                 allBoids.Add(boid);
 
