@@ -1,0 +1,78 @@
+#pragma kernel UpdateMyBoid
+
+struct MyGPUBoid
+{
+    float3 position;
+    float3 velocity;
+};
+
+RWStructuredBuffer<MyGPUBoid> _BoidBuffer;
+int _BoidCount;
+
+[numthreads(100,1,1)]
+void UpdateMyBoid (uint3 id : SV_DispatchThreadID)
+{
+  MyGPUBoid self = _BoidBuffer[id.x];
+
+  float3 separation = float3(0, 0, 0);
+  float3 alignment = float3(0, 0, 0);
+  float3 cohesion = float3(0, 0, 0);
+  int countSep = 0, countAli = 0, countCoh = 0;
+
+  for (int i = 0; i < _BoidCount; i++)
+  {
+      if (i == id.x) continue;
+
+      MyGPUBoid other = _BoidBuffer[i];
+      float dist = distance(self.position, other.position);
+
+      if (dist > 0 && dist < 5.0f)
+      {
+          float3 diff = normalize(self.position - other.position) / dist;
+          separation += diff;
+          countSep++;
+      }
+      if (dist > 0 && dist < 10.0f)
+      {
+          alignment += other.velocity;
+          cohesion += other.position;
+          countAli++;
+          countCoh++;
+      }
+  }
+
+  float3 steer = float3(0, 0, 0);
+  float sepOmomi = 1.0f;
+  float aliOmomi = 1.5f;
+  float cohOmomi = 1.0f;
+  float maxSpeed = 5.0f;
+  float maxForce = 0.05f;
+
+  if (countSep > 0)
+  {
+      float3 desired = normalize(separation / countSep) * maxSpeed;
+      steer += (desired - self.velocity) * sepOmomi;
+  }
+
+  if (countAli > 0)
+  {
+      float3 desired = normalize(alignment / countAli) * maxSpeed;
+      steer += (desired - self.velocity) * aliOmomi;
+  }
+
+  if (countCoh > 0)
+  {
+      float3 center = cohesion / countCoh;
+      float3 desired = normalize(center - self.position) * maxSpeed;
+      steer += (desired - self.velocity) * cohOmomi;
+  }
+
+  // 操舵力を速度に足す
+  MyGPUBoid result = self;
+  if (length(steer) > maxForce)
+  {
+      steer = normalize(steer) * maxForce;
+  }
+  result.velocity += steer;
+  _BoidBuffer[id.x] = result;
+}

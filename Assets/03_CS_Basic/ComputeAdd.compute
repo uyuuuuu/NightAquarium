@@ -1,0 +1,11 @@
+#pragma kernel KernelAdd
+
+RWStructuredBuffer<int> _Buffer;
+int                     _AddValue;
+
+[numthreads(4,1,1)]
+void KernelAdd (uint3 groupID       : SV_GroupID,
+             uint3 groupThreadID : SV_GroupThreadID)
+{
+    _Buffer[groupThreadID.x] += _AddValue;
+}
