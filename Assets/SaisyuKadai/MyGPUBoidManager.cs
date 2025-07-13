@@ -4,13 +4,11 @@ using System.Runtime.InteropServices;
 
 public class MyGPUBoidManager : MonoBehaviour
 {
-    // 追加部分
     public struct MyBoidData
     {
         public Vector3 position;
         public Vector3 velocity;
     }
-    /////
 
     public MyGPUBoid boidPrefab; // GPUBoidのプレハブ
     int boidCount = 10000; // boidの数
@@ -18,11 +16,9 @@ public class MyGPUBoidManager : MonoBehaviour
 
     public ComputeShader computeShader;
 
-    // 追加部分
     int kernelIndex;
     MyBoidData[] boidArray; // gpuに渡す用
     ComputeBuffer boidBuffer;
-    /////
 
     void Start()
     {

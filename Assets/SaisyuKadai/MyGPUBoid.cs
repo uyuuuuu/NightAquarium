@@ -4,7 +4,9 @@ public class MyGPUBoid : MonoBehaviour
 {
     public Vector3 Velocity; // 速度
     public Vector3 Acceleration; // boidの計算によって得られた操舵力
-    float borderLength = 100.0f; // シミュレーション領域の1辺の長さ
+    public Vector3 Rotation;
+    float borderLengthX = 100.0f; // シミュレーション領域の横の長さ
+    float borderLengthY = 200.0f; // 高さ
 
     float maxSpeed = 5;
 
@@ -20,7 +22,7 @@ public class MyGPUBoid : MonoBehaviour
         Velocity = Vector3.ClampMagnitude(Velocity, maxSpeed);
 
         transform.position += Velocity * Time.deltaTime * 2.0f;
-        transform.rotation = Quaternion.LookRotation(Velocity);
+        transform.rotation = Quaternion.LookRotation(Velocity) * Quaternion.Euler(0, -90, 0);
 
         border(); // 境界処理
     }
@@ -28,30 +30,30 @@ public class MyGPUBoid : MonoBehaviour
     // 境界でループするように処理する
     private void border()
     {
-        if (this.transform.position.x < -borderLength / 2.0f)
+        if (this.transform.position.x < -borderLengthX / 2.0f)
         {
-            this.transform.position = new Vector3(borderLength / 2.0f, this.transform.position.y, this.transform.position.z);
+            this.transform.position = new Vector3(borderLengthX / 2.0f, this.transform.position.y, this.transform.position.z);
         }
-        if (this.transform.position.y < -borderLength / 2.0f)
+        if (this.transform.position.y < -borderLengthY / 2.0f)
         {
-            this.transform.position = new Vector3(this.transform.position.x, borderLength / 2.0f, this.transform.position.z);
+            this.transform.position = new Vector3(this.transform.position.x, borderLengthY / 2.0f, this.transform.position.z);
         }
-        if (this.transform.position.z < -borderLength / 2.0f)
+        if (this.transform.position.z < -borderLengthX / 2.0f)
         {
-            this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, borderLength / 2.0f);
+            this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, borderLengthX / 2.0f);
         }
 
-        if (this.transform.position.x > borderLength / 2.0f)
+        if (this.transform.position.x > borderLengthX / 2.0f)
         {
-            this.transform.position = new Vector3(-borderLength / 2.0f, this.transform.position.y, this.transform.position.z);
+            this.transform.position = new Vector3(-borderLengthX / 2.0f, this.transform.position.y, this.transform.position.z);
         }
-        if (this.transform.position.y > borderLength / 2.0f)
+        if (this.transform.position.y > borderLengthY / 2.0f)
         {
-            this.transform.position = new Vector3(this.transform.position.x, -borderLength / 2.0f, this.transform.position.z);
+            this.transform.position = new Vector3(this.transform.position.x, -borderLengthY / 2.0f, this.transform.position.z);
         }
-        if (this.transform.position.z > borderLength / 2.0f)
+        if (this.transform.position.z > borderLengthX / 2.0f)
         {
-            this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, -borderLength / 2.0f);
+            this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, -borderLengthX / 2.0f);
         }
 
     }
