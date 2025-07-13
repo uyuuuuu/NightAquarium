@@ -7,8 +7,8 @@ public class MyGPUBoid : MonoBehaviour
     public int typeId;
     public MyGPUBoidManager.BoidType BoidType { get; set; } // Boidの種類
 
-    float borderLengthX = 80.0f; // シミュレーション領域の横の長さ
-    float borderLengthY = 160.0f; // 高さ
+    float borderLengthX = 100.0f; // シミュレーション領域の横の長さ
+    float borderLengthY = 120.0f; // 高さ
 
     float maxSpeed = 5;
 
@@ -34,10 +34,6 @@ public class MyGPUBoid : MonoBehaviour
         {
             // 魚なら進行方向
             transform.rotation = Quaternion.LookRotation(Velocity) * Quaternion.Euler(0, -90, 0);
-            // if (Velocity.sqrMagnitude > 0.001f)
-            // {
-            //     transform.rotation = Quaternion.LookRotation(Velocity) * Quaternion.Euler(0, -90, 0);
-            // }
         }
 
         border(); // 境界処理

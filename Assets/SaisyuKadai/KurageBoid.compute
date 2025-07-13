@@ -82,11 +82,11 @@ void UpdateKurageBoid (uint3 id : SV_DispatchThreadID)
     }
 
     // 重力
-    float3 gravity = float3(0, -0.07, 0);
+    float3 gravity = float3(0, -0.06, 0);
     kurageSteer += gravity;
 
     float pulseFrequency = 0.3; // 1秒あたりの回数
-    float pulseDuration = 0.2; // 持続時間
+    float pulseDuration = 0.25; // 持続時間
     float pulseStrength = 1.4;  // 強さ
 
     float timeOffset = self.position.x / 10; // Boidごとタイミングをずらす

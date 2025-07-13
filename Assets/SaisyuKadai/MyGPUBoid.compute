@@ -50,7 +50,7 @@ void UpdateMyBoid (uint3 id : SV_DispatchThreadID)
             separation += diff;
             countSep++;
         }
-        if (dist > 3.0f && dist < 10.0f)
+        if (dist > 4.0f && dist < 8.0f)
         {
             alignment += other.velocity;
             cohesion += other.position;
