@@ -23,6 +23,10 @@ int _BoidCountAll;
 int _BoidCountGroup;
 float Time;
 
+float3 _AvoidTargetPosition;
+float _AvoidDistance;
+float _AvoidWeight;
+
 [numthreads(128,1,1)]
 void UpdateMyBoid (uint3 id : SV_DispatchThreadID)
 {
@@ -36,25 +40,23 @@ void UpdateMyBoid (uint3 id : SV_DispatchThreadID)
     float3 cohesion = float3(0, 0, 0);
     int countSep = 0, countAli = 0, countCoh = 0;
 
+    float3 steer = float3(0, 0, 0);
     for (int i = 0; i < _BoidCountAll; i++)
     {
         BoidDataGPU other = _BoidsBufferRead[i];
         if (all(self.position == other.position)) continue;
 
         // 敵が近くにいたら避ける
-        if (other.typeId == 4) {
-            float dist = distance(self.position, other.position);
-            if (dist < 10.0f) { // 敵を避ける距離
-                float3 diff = normalize(self.position - other.position) / dist;
-                separation += diff * 10.0; // 強く避ける
-                countSep++;
-            }
+        float dist = distance(self.position, other.position);
+        if (other.typeId == 4 && dist < _AvoidDistance)
+        {
+            float3 diff = normalize(self.position - other.position) / max(dist, 0.01);
+            float3 desired = normalize(diff) * settings.maxSpeed;
+            steer += (desired - self.velocity) * _AvoidWeight * 10;
             continue;
         }
         
         if (self.typeId != other.typeId) continue;
-
-        float dist = distance(self.position, other.position);
 
         if (dist > 0 && dist < 5.0f)
         {
@@ -70,8 +72,6 @@ void UpdateMyBoid (uint3 id : SV_DispatchThreadID)
             countCoh++;
         }
     }
-
-    float3 steer = float3(0, 0, 0);
 
     if (countSep > 0)
     {
@@ -94,9 +94,19 @@ void UpdateMyBoid (uint3 id : SV_DispatchThreadID)
         steer += (desired - self.velocity) * settings.cohesionOmomi;
     }
 
-    if (length(steer) > settings.maxForce)
+    if (length(steer) > settings.maxForce && 
+        (countSep > 0 || countAli > 0 || countCoh > 0))
     {
         steer = normalize(steer) * settings.maxForce;
+    }
+
+    // オブジェクトからの回避
+    float distToTarget = distance(self.position, _AvoidTargetPosition);
+    if (distToTarget < _AvoidDistance)
+    {
+        float3 diff = normalize(self.position - _AvoidTargetPosition) / max(distToTarget, 0.01);
+        float3 desired = normalize(diff) * settings.maxSpeed;
+        steer += (desired - self.velocity) * _AvoidWeight;
     }
 
     BoidDataGPU result = self;

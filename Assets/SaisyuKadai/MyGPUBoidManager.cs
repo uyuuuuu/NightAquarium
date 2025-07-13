@@ -38,6 +38,9 @@ public class MyGPUBoidManager : MonoBehaviour
     }
 
     public List<BoidSettings> boidSettingsList = new List<BoidSettings>();
+    public Transform avoidTarget;
+    public float avoidDistance = 5.0f;
+    public float avoidWeight = 2.0f;
 
     private List<MyGPUBoid> allBoids = new List<MyGPUBoid>();
     // GPU関連
@@ -157,6 +160,13 @@ public class MyGPUBoidManager : MonoBehaviour
             shader.SetInt("_BoidCountAll", allBoids.Count);
             shader.SetInt("_BoidCountGroup", group.boids.Count);
             shader.SetFloat("Time", Time.time);
+
+            if (avoidTarget != null)
+            {
+                shader.SetVector("_AvoidTargetPosition", avoidTarget.position);
+                shader.SetFloat("_AvoidDistance", avoidDistance);
+                shader.SetFloat("_AvoidWeight", avoidWeight);
+            }
 
             shader.Dispatch(group.kernelIndex, (group.boids.Count + 63) / 64, 1, 1);
 

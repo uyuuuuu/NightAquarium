@@ -470,8 +470,11 @@ MonoBehaviour:
     alignmentOmomi: 1
     cohesionOmomi: 1
     separationOmomi: 1
-    maxSpeed: 2
-    maxForce: 0.05
+    maxSpeed: 5
+    maxForce: 0.4
+  avoidTarget: {fileID: 991181959}
+  avoidDistance: 5
+  avoidWeight: 2
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
