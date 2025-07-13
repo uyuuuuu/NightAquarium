@@ -4,7 +4,7 @@ public class MyGPUBoid : MonoBehaviour
 {
     public Vector3 Velocity; // 速度
     public Vector3 Acceleration; // boidの計算によって得られた操舵力
-    public Vector3 Rotation;
+    public int typeId;
     float borderLengthX = 100.0f; // シミュレーション領域の横の長さ
     float borderLengthY = 200.0f; // 高さ
 
