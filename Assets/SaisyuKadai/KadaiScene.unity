@@ -426,10 +426,10 @@ MonoBehaviour:
     computeShader: {fileID: 7200000, guid: c7d167f91138e9e43b901313c76dfdc9, type: 3}
     boidPrefab: {fileID: -2075112354781557037, guid: 15ded5c74d6ecf54795e297a6c666194, type: 3}
     boidMaterial: {fileID: 2100000, guid: ef9e488c24b28d741a975638d16a142f, type: 2}
-    boidCount: 4000
-    alignmentOmomi: 1
-    cohesionOmomi: 1.1
-    separationOmomi: 1
+    boidCount: 6000
+    alignmentOmomi: 0.8
+    cohesionOmomi: 1.2
+    separationOmomi: 1.1
     maxSpeed: 6
     maxForce: 0.1
   - type: 0

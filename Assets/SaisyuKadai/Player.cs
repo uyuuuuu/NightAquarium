@@ -58,5 +58,14 @@ public class Player : MonoBehaviour
         Vector3 move = transform.right * moveX + transform.forward * moveZ + transform.up * moveY;
 
         transform.position += move.normalized * currentSpeed * Time.deltaTime;
+
+        // 中央からの距離
+        float distance = Vector3.Distance(transform.position, Vector3.zero);
+        if (distance > 100.0f)
+        {
+            Vector3 fromOrigin = transform.position - Vector3.zero;
+            fromOrigin = fromOrigin.normalized * 50.0f;
+            transform.position = fromOrigin;
+        }
     }
 }
