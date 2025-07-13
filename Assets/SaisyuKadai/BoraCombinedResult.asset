@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26a20ec895df488429eed92775003092, type: 3}
+  m_Name: BoraCombinedResult
+  m_EditorClassIdentifier: 
+  Context:
+    Mesh: {fileID: 4300000, guid: 701df75e787b9cd408014f0e692f1c97, type: 2}
+    Material: {fileID: 2100000, guid: eb2390ac983188f4ba08c8649d11bc1f, type: 2}
+    TextureTable:
+    - Property: _MainTex
+      Texture: {fileID: 2800000, guid: 23cfbeacbca96cd44bd12c44b7492f21, type: 3}
+    MeshIDTable:
+    - Mesh: {fileID: -1692592120673912446, guid: 1c72f70b558d48445a13381c11cac0b5, type: 3}
+      MeshFilterID: -84363258
+      VertexAttributeID: 0
+    - Mesh: {fileID: 4111032784520247101, guid: 1c72f70b558d48445a13381c11cac0b5, type: 3}
+      MeshFilterID: -84363278
+      VertexAttributeID: 0
+    - Mesh: {fileID: 3892469651134686861, guid: 1c72f70b558d48445a13381c11cac0b5, type: 3}
+      MeshFilterID: -84363294
+      VertexAttributeID: 0
+    - Mesh: {fileID: -2349749667616923659, guid: 1c72f70b558d48445a13381c11cac0b5, type: 3}
+      MeshFilterID: -84363310
+      VertexAttributeID: 0
+    - Mesh: {fileID: -7229514415624507359, guid: 1c72f70b558d48445a13381c11cac0b5, type: 3}
+      MeshFilterID: -84363326
+      VertexAttributeID: 0
+    - Mesh: {fileID: -1934637758852002207, guid: 1c72f70b558d48445a13381c11cac0b5, type: 3}
+      MeshFilterID: -84363342
+      VertexAttributeID: 0
+    - Mesh: {fileID: -3024839356756011697, guid: 1c72f70b558d48445a13381c11cac0b5, type: 3}
+      MeshFilterID: -84363358
+      VertexAttributeID: 0
+    - Mesh: {fileID: 8671425346076708657, guid: 1c72f70b558d48445a13381c11cac0b5, type: 3}
+      MeshFilterID: -84363374
+      VertexAttributeID: 0
+    - Mesh: {fileID: 3820883738771960177, guid: 1c72f70b558d48445a13381c11cac0b5, type: 3}
+      MeshFilterID: -84363390
+      VertexAttributeID: 0
+    - Mesh: {fileID: -4243911172698300102, guid: 1c72f70b558d48445a13381c11cac0b5, type: 3}
+      MeshFilterID: -84363406
+      VertexAttributeID: 0
+    - Mesh: {fileID: 4376424609954383648, guid: 1c72f70b558d48445a13381c11cac0b5, type: 3}
+      MeshFilterID: -84363422
+      VertexAttributeID: 0
