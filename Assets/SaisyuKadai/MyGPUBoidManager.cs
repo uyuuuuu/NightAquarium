@@ -11,7 +11,7 @@ public class MyGPUBoidManager : MonoBehaviour
     }
 
     public MyGPUBoid boidPrefab; // GPUBoidのプレハブ
-    int boidCount = 10000; // boidの数
+    int boidCount = 2000; // boidの数
     public List<MyGPUBoid> boids = new List<MyGPUBoid>(); //GPUBoidのオブジェクト保持用
 
     public ComputeShader computeShader;

@@ -42,9 +42,9 @@ void UpdateMyBoid (uint3 id : SV_DispatchThreadID)
   }
 
   float3 steer = float3(0, 0, 0);
-  float sepOmomi = 1.0f;
-  float aliOmomi = 1.5f;
-  float cohOmomi = 1.0f;
+  float sepOmomi = 1.0f; // 分離
+  float aliOmomi = 1.2f; // 整列
+  float cohOmomi = 1.0f; // 結合
   float maxSpeed = 5.0f;
   float maxForce = 0.05f;
 
