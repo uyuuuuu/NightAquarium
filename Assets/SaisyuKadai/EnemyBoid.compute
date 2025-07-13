@@ -46,22 +46,13 @@ void UpdateEnemyBoid(uint3 id : SV_DispatchThreadID)
 
     float timeSeed = floor(Time / 4.0);
     
+    // ランダム方向に4sおきに進む
     float rX = smoothRand(float2(timeSeed, id.x)) * 2.0 - 1.0;
-    float rY = smoothRand(float2(timeSeed, id.x + 123.4)) * 2.0 - 1.0;
-    float rZ = smoothRand(float2(timeSeed, id.x - 567.8)) * 2.0 - 1.0;
+    float rY = smoothRand(float2(timeSeed, id.x + 100)) * 2.0 - 1.0;
+    float rZ = smoothRand(float2(timeSeed, id.x - 100)) * 2.0 - 1.0;
     
     float3 desiredWander = normalize(float3(rX, rY, rZ)) * settings.maxSpeed;
     float3 steer = (desiredWander - self.velocity) * settings.maxForce * 0.5;
-
-    // float3 steer = normalize(randomDir) * settings.maxForce * 0.5;
-
-    // 回避
-    float distToTarget = distance(self.position, _AvoidTargetPosition);
-    if (distToTarget < _AvoidDistance)
-    {
-        float3 desired = normalize(self.position - _AvoidTargetPosition) * settings.maxSpeed;
-        steer += (desired - self.velocity) * _AvoidWeight;
-    }
 
     BoidDataGPU result = self;
     result.velocity += steer;
